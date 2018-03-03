@@ -9,7 +9,7 @@ YLabels = unique(Y);
 Index = 1 : K;
 ClassMap = containers.Map(YLabels, Index);
 
-C = 0.1;
+C = 10;
 eta0 = 1;
 eta1 = 100;
 num_epochs = 2000;
@@ -21,7 +21,7 @@ LossArray = zeros(num_epochs);
 for epoch = 1 : num_epochs
     eta = eta0 / (eta1 + epoch);
     iX = randperm(N);
-    curEpochLoss = 0;
+    curEpochLoss = 0.0;
     for i = iX %1 : N
         Xi = X(:, i);
         YMul = transpose(W) * Xi;
@@ -34,19 +34,19 @@ for epoch = 1 : num_epochs
         
         % Gradient cases
         % 1. True label
-        MaxCondition = transpose(W(:,YHatIndex)) * Xi - transpose(W(:,YiIndex)) * Xi + 1;
+        MaxCondition = transpose(W(:,YHatIndex)) * Xi - transpose(W(:,YiIndex)) * Xi + 1.0;
         %curEpochLoss =  curEpochLoss + max(MaxCondition, 0);
         %LossArray = [LossArray, max(MaxCondition, 0)];
         WMul = W(:,YiIndex) / N;
-        SGTrueLabel = WMul - C * Xi;
-        if MaxCondition < 0
-           SGTrueLabel = WMul; 
+        SGTrueLabel = WMul;
+        if MaxCondition > 0
+           SGTrueLabel = WMul - C * Xi; 
         end
         % 2. Y Hat
         WMul = W(:,YHatIndex) / N;
-        SGHat = max(WMul - C * Xi, WMul);
-        if MaxCondition < 0
-            SGHat = WMul;
+        SGHat = WMul;
+        if MaxCondition > 0
+            SGHat = WMul + C*Xi;
         end
         
         % 3. For rest of Wj's
@@ -54,7 +54,6 @@ for epoch = 1 : num_epochs
         gradW = W / N;
         
         % Gradient matrix
-        %gradW = repmat(tempW, 1, K);
         gradW(:,YiIndex) = SGTrueLabel;
         gradW(:,YHatIndex) = SGHat;
         
@@ -62,11 +61,8 @@ for epoch = 1 : num_epochs
         W = W - eta * gradW;
         
         % Compute loss
-        normSum = 0;
-        for tempK = 1:K
-            normSum = normSum + norm(W(:,tempK));
-        end
-        
+        normSum = norm(W(:))^2;
+        MaxCondition = transpose(W(:,YHatIndex)) * Xi - transpose(W(:,YiIndex)) * Xi + 1.0;
         curEpochLoss = curEpochLoss + normSum / (2*N) + C * max(0, MaxCondition);
     end
     % Append Loss
