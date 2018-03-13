@@ -1,10 +1,10 @@
 # SBU-ML-Assignment
 Machine Learning algorithm implemented during Machine Learning course at SBU
 
-# Instructor
+## Instructor
 [Professor Minh Hoai Nguyen](http://www3.cs.stonybrook.edu/~minhhoai/)
 
-# Algorithms Implemented
+## Algorithms Implemented
 1. Ridge Regression and Lasso Solver 
     - [Predicting Wine goodness](https://www.kaggle.com/c/hw1-wine-goodness-cse512-spr18)
 
